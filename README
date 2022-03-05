@@ -1,0 +1,24 @@
+336CA, Simionescu marina-Ilariana
+
+Pentru implementarea temei, am construit 2 clase MapThread si ReduceThread ce reprezinta workeri care executa
+operatii de tipul Map, respectiv Reduce.
+
+In Coordonator, care este Main in acest caz, am citit parametrii de intrare, numarul de workeri, path-ul catre fisierul
+de intrare si catre cel de iesire, am aflat lungimile tuturor fisierelor din testul curent, apoi am calculat in cate
+fragmente se imparte fiecare fisier in functie de dimensiunea chunk-urilor.
+
+Am declarat un ExecutorService care are un Thread Pool de dimensiune fixa, reprezentata de numarul de workeri primiti
+ca si parametru, apoi am inceput task-urile de tip Map, am impartit fiecare fisier in fragmente si am aplicat operatiile
+necesare pentru a returna dictionarul si lista cu cele mai lungi cuvinte. Am tinut cont si de cuvintele care sunt
+impartite in 2 fragmente, fragmentul care se termina in mijlocul unui cuvant se va ocupa de acel cuvant, iar fragmentul
+care incepe in mijlocul unui cuvant il va ignora intrucat s-a ocupat deja de el workerul precedent.
+
+Folosind Future, se creeaza o lista de viitoare rezultate ale operatiilor de tip map, care vor fi extrase intr-o lista
+de rezultate concrete folosind metoda get.
+
+Dupa ce s-au terminat toate operatiile de tip Map, putem trece la cele de Reduce, astfel ca se creeaza liste cu rezultate
+partiale pentru fiecare fisier in parte care se trimit unui worker, iar acesta combina rezultatele. El combina dictionarele,
+calculeaza o noua lista cu cele mai lungi cuvinte din intregul fragment si, deasemenea, rankul acelui fragment.
+Intoarce si acesta rezultatul intr-un ReduceResult, care va fi din nou extras dintr-un future de catre coordonator.
+
+Se scriu rezultatele finale in fisierul de iesire
